@@ -8,12 +8,6 @@ function App() {
   const [timeframe, setTimeframe] = React.useState('15');
   const [tab, setTab] = React.useState('overview');
   const [watchlist, setWatchlist] = React.useState('XAUUSD');
-  const [locked, setLocked] = React.useState(!sessionStorage.getItem('chemlal-unlocked'));
-  const [password, setPassword] = React.useState('');
-  const [error, setError] = React.useState('');
-  const unlock = (e) => { e.preventDefault(); setError('Password protection is not configured yet. Add APP_PASSWORD in Vercel Environment Variables after deployment.'); };
-  const tvSymbol = symbol;
-  if (locked) return <main className="lock-screen"><div className="lock-card"><div className="logo-mark"><CandlestickChart/></div><p className="eyebrow">TRADER PRO CHEMLAL</p><h1>Private Trading Workspace</h1><p className="muted">Dashboard starter is ready. Password access will be enabled after secure server configuration.</p><form onSubmit={unlock}><input type="password" placeholder="Personal password" value={password} onChange={e=>setPassword(e.target.value)} /><button>Continue</button></form>{error && <small className="error">{error}</small>}<small className="muted">Do not enter a real password until server-side authentication is configured.</small></div></main>;
   return <div className="app-shell">
     <aside className="sidebar"><div className="brand"><div className="logo-mark"><CandlestickChart/></div><div><b>TRADER PRO</b><span>CHEMLAL FX</span></div></div><div className="side-label">WORKSPACE</div>{[['overview','Overview',Activity],['signals','SMC Signals',Target],['markets','Markets',Waves],['settings','Settings',Settings]].map(([id,label,Icon])=><button key={id} className={'nav-item '+(tab===id?'active':'')} onClick={()=>setTab(id)}><Icon size={17}/>{label}</button>)}<div className="sidebar-bottom"><ShieldCheck size={17}/><span>Workspace starter</span></div></aside>
     <main className="main"><header className="topbar"><div><p className="eyebrow">TRADING TERMINAL / {tab.toUpperCase()}</p><h1>{tab==='overview'?'Market Overview':tab==='signals'?'SMC Strategy Signals':tab==='markets'?'Markets':'Settings'}</h1></div><div className="top-actions"><span className="status"><i/> UI ONLINE</span><button className="icon-btn"><Bell size={18}/></button></div></header>
