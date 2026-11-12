@@ -45,6 +45,10 @@ function LoginScreen({ onLogin }) {
 
 function App() {
   const [auth, setAuth] = React.useState('checking');
+  const [symbol, setSymbol] = React.useState('OANDA:XAUUSD');
+  const [timeframe, setTimeframe] = React.useState('15');
+  const [tab, setTab] = React.useState('overview');
+  const [watchlist, setWatchlist] = React.useState('XAUUSD');
   React.useEffect(() => {
     let active = true;
     fetch('/api/session', { credentials: 'same-origin' })
@@ -59,10 +63,6 @@ function App() {
   };
   if (auth === 'checking') return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin" size={25}/><span>SECURING YOUR WORKSPACE</span></div></main>;
   if (auth !== 'authenticated') return <LoginScreen onLogin={() => setAuth('authenticated')} />;
-  const [symbol, setSymbol] = React.useState('OANDA:XAUUSD');
-  const [timeframe, setTimeframe] = React.useState('15');
-  const [tab, setTab] = React.useState('overview');
-  const [watchlist, setWatchlist] = React.useState('XAUUSD');
   const tvSymbol = symbol;
   return <div className="app-shell">
     <aside className="sidebar"><div className="brand"><div className="logo-mark"><CandlestickChart/></div><div><b>TRADER PRO</b><span>CHEMLAL FX</span></div></div><div className="side-label">WORKSPACE</div>{[['overview','Overview',Activity],['signals','SMC Signals',Target],['markets','Markets',Waves],['settings','Settings',Settings]].map(([id,label,Icon])=><button key={id} className={'nav-item '+(tab===id?'active':'')} onClick={()=>setTab(id)}><Icon size={17}/>{label}</button>)}<div className="sidebar-bottom"><ShieldCheck size={17}/><span>Workspace starter</span></div></aside>
