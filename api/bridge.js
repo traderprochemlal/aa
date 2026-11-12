@@ -16,9 +16,9 @@ function analyze(candles = []) {
   const swingLow = Math.min(...lows);
   const bullishBos = Number(last.close) > swingHigh;
   const bearishBos = Number(last.close) < swingLow;
-  const a = bars[bars.length - 3], b = bars[bars.length - 2];
-  const bullishFvg = Number(b.high) < Number(last.low);
-  const bearishFvg = Number(b.low) > Number(last.high);
+  const a = bars[bars.length - 3];
+  const bullishFvg = Number(a.high) < Number(last.low);
+  const bearishFvg = Number(a.low) > Number(last.high);
   const direction = bullishBos ? 'BULLISH' : bearishBos ? 'BEARISH' : 'RANGE';
   const setup = bullishBos || bearishBos;
   return {
