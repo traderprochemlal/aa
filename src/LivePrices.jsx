@@ -15,7 +15,7 @@ const symbols = [
   { proName: 'TVC:DXY', title: 'US Dollar Index' }
 ];
 
-export function LivePrices() {
+export function LivePrices({ symbol } = {}) {
   const hostRef = React.useRef(null);
   React.useEffect(() => {
     const host = hostRef.current;
@@ -33,7 +33,7 @@ export function LivePrices() {
     script.async = true;
     script.type = 'text/javascript';
     script.text = JSON.stringify({
-      symbols,
+      symbols: symbol ? symbols.filter(item => item.proName === symbol) : symbols,
       showSymbolLogo: true,
       isTransparent: true,
       displayMode: 'adaptive',
