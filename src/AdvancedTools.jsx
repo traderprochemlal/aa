@@ -56,12 +56,14 @@ export function TradeJournal({market}) {
   </div>;
 }
 
-export function SMCIntelligence({market}) {
+export function SMCIntelligence({market, bridge}) {
   const frames=['M1','M5','M15','H1','H4'];
-  return <div className="tool-page"><section className="tool-hero"><div><span className="eyebrow">SMART MONEY CONCEPTS</span><h2>SMC Intelligence · {market}</h2><p>Multi-timeframe analysis workspace. Automated structure detection remains disabled until verified broker candles are connected.</p></div><span className="tool-icon"><Radar/></span></section>
-    <section className="panel tool-panel"><div className="panel-head"><div><span className="eyebrow">MULTI-TIMEFRAME MATRIX</span><h2>Structure confirmation</h2></div><span className="tag amber-tag">DATA REQUIRED</span></div>
-      <div className="mtf-grid">{frames.map(frame=><div key={frame}><b>{frame}</b><strong>WAIT</strong><small>Awaiting verified candles</small></div>)}</div>
-      <p className="tool-note">BOS, CHoCH, swing highs/lows, displacement and trend alignment will be calculated from OHLC candle history. No timeframe is marked bullish or bearish without that data.</p>
+  return <div className="tool-page"><section className="tool-hero"><div><span className="eyebrow">SMART MONEY CONCEPTS</span><h2>SMC Intelligence · {market}</h2><p>Multi-timeframe analysis workspace. Structure checks use the latest broker candles when the MT5 bridge is online; this is a rule-based tool, not an AI model.</p></div><span className="tool-icon"><Radar/></span></section>
+    <section className="panel tool-panel"><div className="panel-head"><div><span className="eyebrow">MULTI-TIMEFRAME MATRIX</span><h2>Structure confirmation</h2></div><span className={bridge?.connected ? "tag" : "tag amber-tag"}>{bridge?.connected ? "BROKER DATA LIVE" : "DATA REQUIRED"}</span></div>
+      <div className="mtf-grid">{frames.map(frame=>{const item=bridge?.analysis?.[frame];return <div key={frame}><b>{frame}</b><strong className={item?.status==='BUY'?'positive':item?.status==='SELL'?'negative':''}>{item?.status||'WAIT'}</strong><small>{item?.direction||'Awaiting verified candles'}</small></div>})}</div>
+      {bridge?.connected && bridge?.quote?.symbol===market && <div className="live-signal-detail"><div><span>MT5 BID / ASK</span><b>{bridge.quote.bid} / {bridge.quote.ask}</b></div><div><span>M15 STRUCTURE</span><b>{bridge.analysis?.M15?.bos||'Not evaluated'}</b></div><div><span>M15 FVG</span><b>{bridge.analysis?.M15?.fvg||'Not evaluated'}</b></div><p>{bridge.analysis?.M15?.reason||'Waiting for candles'}</p></div>}
+      {!bridge?.connected && <p className="tool-note">MT5 is offline. Connect the Expert Advisor to start receiving broker candles.</p>}
+      <p className="tool-note">The connected endpoint currently evaluates candle-range breakouts and recent three-candle FVG candidates. This is a first rule-based pass, not full institutional SMC or an AI model; confirm every setup manually.</p>
     </section>
     <div className="tool-columns">
       <section className="panel tool-panel"><span className="eyebrow">LIQUIDITY RADAR</span><h2 className="tool-result-title">Key liquidity pools</h2><div className="radar-list"><div><span>Equal highs / buy-side liquidity</span><b>Not scanned</b></div><div><span>Equal lows / sell-side liquidity</span><b>Not scanned</b></div><div><span>Previous day high / low</span><b>Not available</b></div><div><span>Liquidity sweep confirmation</span><b>WAIT</b></div></div></section>
