@@ -4,7 +4,15 @@ const symbols = [
   { proName: 'OANDA:XAUUSD', title: 'Gold' },
   { proName: 'OANDA:EURUSD', title: 'EUR/USD' },
   { proName: 'OANDA:GBPUSD', title: 'GBP/USD' },
-  { proName: 'BITSTAMP:BTCUSD', title: 'Bitcoin' }
+  { proName: 'OANDA:USDJPY', title: 'USD/JPY' },
+  { proName: 'OANDA:AUDUSD', title: 'AUD/USD' },
+  { proName: 'OANDA:USDCAD', title: 'USD/CAD' },
+  { proName: 'BITSTAMP:BTCUSD', title: 'Bitcoin' },
+  { proName: 'BINANCE:ETHUSDT', title: 'Ethereum' },
+  { proName: 'TVC:USOIL', title: 'Crude Oil' },
+  { proName: 'NASDAQ:NDX', title: 'Nasdaq 100' },
+  { proName: 'SP:SPX', title: 'S&P 500' },
+  { proName: 'TVC:DXY', title: 'US Dollar Index' }
 ];
 
 export function LivePrices() {
