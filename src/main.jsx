@@ -146,7 +146,7 @@ function App() {
           <div className="history-empty"><div className="history-empty-icon"><Activity size={20}/></div><b>No strategy decisions recorded yet</b><p>Once the verified data feed and SMC calculation engine are connected, every BUY, SELL or WAIT decision will be saved with its reason, direction, entry, stop loss and TP1–TP3 levels. The journal will retain the latest 50 decisions.</p></div>
         </section>
       </>}
-      {tab === 'smc-tools' && <SMCIntelligence market={activeMarket.symbol} />}
+      {tab === 'smc-tools' && <SMCIntelligence market={activeMarket.symbol} bridge={bridge} />}
       {tab === 'risk' && <RiskManager market={activeMarket.symbol} />}
       {tab === 'journal' && <TradeJournal market={activeMarket.symbol} />}
       {tab === 'markets' && <><LivePrices /><section className="panel markets-panel"><div className="panel-head"><div><span className="eyebrow">INSTRUMENTS</span><h2>Watchlist markets</h2></div><span className="tag">SELECT TO OPEN CHART</span></div><div className="market-table"><div className="market-table-head"><span>INSTRUMENT</span><span>ASSET CLASS</span><span>PRICE SOURCE</span><span>CHART</span></div>{markets.map(m=><div className="market-table-row" key={m.symbol}><div><b>{m.symbol}</b><small>{m.name}</small></div><span>{m.type}</span><b className="positive">TradingView</b><button className="subtle-btn" onClick={()=>chooseMarket(m)}>Open chart →</button></div>)}</div><p className="disclaimer">Use the Market Prices ticker above for current provider quotes. TradingView quotes may be delayed and can differ from broker execution prices.</p></section></>}
