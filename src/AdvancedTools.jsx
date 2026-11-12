@@ -57,7 +57,7 @@ export function TradeJournal({market}) {
 }
 
 export function SMCIntelligence({market, bridge}) {
-  const frames=['M1','M5','M15','H1','H4'];
+  const frames=['M5','M15','H1','H4'];
   return <div className="tool-page"><section className="tool-hero"><div><span className="eyebrow">SMART MONEY CONCEPTS</span><h2>SMC Intelligence · {market}</h2><p>Multi-timeframe analysis workspace. Structure checks use the latest broker candles when the MT5 bridge is online; this is a rule-based tool, not an AI model.</p></div><span className="tool-icon"><Radar/></span></section>
     <section className="panel tool-panel"><div className="panel-head"><div><span className="eyebrow">MULTI-TIMEFRAME MATRIX</span><h2>Structure confirmation</h2></div><span className={bridge?.connected ? "tag" : "tag amber-tag"}>{bridge?.connected ? "BROKER DATA LIVE" : "DATA REQUIRED"}</span></div>
       <div className="mtf-grid">{frames.map(frame=>{const item=bridge?.analysis?.[frame];return <div key={frame}><b>{frame}</b><strong className={item?.status==='BUY'?'positive':item?.status==='SELL'?'negative':''}>{item?.status||'WAIT'}</strong><small>{item?.direction||'Awaiting verified candles'}</small></div>})}</div>
