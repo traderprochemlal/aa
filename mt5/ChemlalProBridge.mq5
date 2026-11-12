@@ -62,4 +62,3 @@ int OnInit() {
 }
 void OnDeinit(const int reason) { EventKillTimer(); }
 void OnTimer() { SendSnapshot(); }
-void OnTick() { SendSnapshot(); }
