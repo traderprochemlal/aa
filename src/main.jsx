@@ -48,8 +48,6 @@ function LoginScreen({ onLogin }) {
 
 function App() {
   const [auth, setAuth] = React.useState('checking');
-  const [clock, setClock] = React.useState(Date.now());
-  const [marketData, setMarketData] = React.useState({ loading: false, error: '' });
   const [symbol, setSymbol] = React.useState('OANDA:XAUUSD');
   const [timeframe, setTimeframe] = React.useState('15');
   const [tab, setTab] = React.useState('overview');
@@ -80,27 +78,6 @@ function App() {
     {symbol:'BTCUSD',name:'Bitcoin / US Dollar',tv:'BITSTAMP:BTCUSD',type:'CRYPTO',change:'+1.26%',tone:'positive'}
   ];
   const activeMarket = markets.find(m => m.symbol === selectedMarket) || markets[0];
-  React.useEffect(() => {
-    if (auth !== 'authenticated' || tab !== 'signals') return;
-    let active = true;
-    const loadCandles = async () => {
-      setMarketData(old => ({ ...old, loading: true, error: '' }));
-      try {
-        const response = await fetch('/api/market-data?symbol=' + encodeURIComponent(activeMarket.symbol) + '&timeframe=' + encodeURIComponent(timeframe), { credentials: 'same-origin' });
-        const payload = await response.json();
-        if (!response.ok || !payload.connected) throw new Error(payload.error || 'Market candle feed is unavailable');
-        if (active) setMarketData({ ...payload, loading: false, error: '' });
-      } catch (error) {
-        if (active) setMarketData(old => ({ ...old, loading: false, error: error.message || 'Unable to load candle data' }));
-      }
-    };
-    loadCandles();
-    const timer = setInterval(loadCandles, 20000);
-    return () => { active = false; clearInterval(timer); };
-  }, [auth, tab, activeMarket.symbol, timeframe]);
-  const smc = marketData.symbol === activeMarket.symbol && marketData.timeframe === timeframe ? marketData : null;
-  const priceText = value => Number.isFinite(Number(value)) ? Number(value).toLocaleString(undefined, { maximumFractionDigits: 5 }) : '—';
-  const agreement = smc?.analysis?.status === 'BUY' || smc?.analysis?.status === 'SELL' ? 'SETUP DETECTED' : 'NO SETUP';
   const chooseMarket = (m) => { setSelectedMarket(m.symbol); setSymbol(m.tv); setTab('overview'); };
   if (auth === 'checking') return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin" size={25}/><span>SECURING YOUR WORKSPACE</span></div></main>;
   if (auth !== 'authenticated') return <LoginScreen onLogin={() => setAuth('authenticated')} />;
@@ -121,7 +98,7 @@ function App() {
           <div className="stat-card"><span>SELECTED MARKET</span><strong>{activeMarket.symbol}</strong><small>{activeMarket.name}</small></div>
           <div className="stat-card"><span>CHART TIMEFRAME</span><strong>{timeframe==='D'?'1 Day':timeframe==='240'?'4 Hours':timeframe+' Minutes'}</strong><small>TradingView widget</small></div>
           <div className="stat-card"><span>PRICE SOURCE</span><strong className="positive">TRADINGVIEW</strong><small>Embedded market widgets</small></div>
-          <div className="stat-card"><span>SMC ENGINE</span><strong className={smc?.connected?'positive':'amber'}>{smc?.connected?'LIVE CANDLES':marketData.loading?'LOADING':'DATA UNAVAILABLE'}</strong><small>{smc?.source||'Free candle feed'}</small></div>
+          <div className="stat-card"><span>SMC ENGINE</span><strong className="amber">AWAITING DATA</strong><small>No unverified trade calls</small></div>
         </section>
         <section className="content-grid">
           <div className="panel chart-panel"><div className="panel-head"><div><span className="eyebrow">MARKET CHART</span><h2>{activeMarket.name}</h2></div><div className="timeframes">{[['1','1m'],['5','5m'],['15','15m'],['60','1h'],['240','4h'],['D','1D']].map(([v,l])=><button className={timeframe===v?'selected':''} onClick={()=>setTimeframe(v)} key={v}>{l}</button>)}</div></div><div className="chart-wrap"><iframe title="TradingView market chart" src={`https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(symbol)}&interval=${timeframe}&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=%230b1728&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1`} /></div><div className="chart-foot"><span><i/> TradingView chart</span><span>Chart provider prices may differ from your broker</span></div></div>
@@ -137,42 +114,42 @@ function App() {
           <div className="chart-foot"><span><i/> TradingView chart · {activeMarket.tv}</span><span>Reference prices; broker execution may differ</span></div>
         </section>
         <section className="smc-summary-grid">
-          <div className="smc-summary-card"><span>MARKET DIRECTION</span><strong className={smc?.analysis?.direction?.includes('BULLISH')?'positive':smc?.analysis?.direction?.includes('BEARISH')?'negative':''}>{smc?.analysis?.direction||'AWAITING DATA'}</strong><small>{smc?.candles?.length||0} candles · {timeframe} timeframe</small></div>
-          <div className="smc-summary-card"><span>TRADE DECISION</span><strong className={smc?.analysis?.status==='BUY'?'positive':smc?.analysis?.status==='SELL'?'negative':'wait-text'}>{smc?.analysis?.status||'WAIT'}</strong><small>{smc?.analysis?.reason||marketData.error||'Fetching market candles…'}</small></div>
-          <div className="smc-summary-card"><span>SIGNAL STRENGTH</span><strong>{smc?.analysis?.confidence??'—'}{smc?.analysis?.confidence!=null?'%':''}</strong><div className="strength-track"><i style={{width:(smc?.analysis?.confidence||0)+'%'}}/></div><small>Rule-based confluence estimate</small></div>
-          <div className="smc-summary-card"><span>STRATEGY AGREEMENT</span><strong>{smc?agreement:'—'}</strong><small>{smc?.analysis?.fvg||'Confluence pending'}</small></div>
+          <div className="smc-summary-card"><span>MARKET DIRECTION</span><div className="direction-options"><b className="bullish">BULLISH</b><b className="bearish">BEARISH</b></div><small>Awaiting verified candle data</small></div>
+          <div className="smc-summary-card"><span>TRADE DECISION</span><strong className="wait-text">WAIT</strong><small>No confirmed BUY / SELL setup</small></div>
+          <div className="smc-summary-card"><span>SIGNAL STRENGTH</span><strong>—</strong><div className="strength-track"><i style={{width:'0%'}}/></div><small>Not calculated</small></div>
+          <div className="smc-summary-card"><span>STRATEGY AGREEMENT</span><strong>—</strong><small>Confluence unavailable</small></div>
         </section>
         <section className="signal-layout smc-main-grid">
           <div className="panel">
-            <div className="panel-head"><div><span className="eyebrow">SMART MONEY CONCEPTS · {smc?.source||'FREE MARKET DATA'}</span><h2>SMC Strategy Signal · {activeMarket.symbol}</h2></div><span className={smc?.analysis?.status==='BUY'?'tag':smc?.analysis?.status==='SELL'?'tag negative-tag':'tag amber-tag'}>{smc?.analysis?.status||'WAIT'}</span></div>
-            <div className="signal-direction"><div className="signal-icon"><Activity/></div><div><b>{smc?.analysis?.status==='BUY'?'BULLISH SETUP CANDIDATE':smc?.analysis?.status==='SELL'?'BEARISH SETUP CANDIDATE':'WAIT FOR CONFIRMATION'}</b><small>{marketData.loading?'Updating candles…':smc?.analysis?.reason||marketData.error||'Connecting to free candle feed…'}</small></div></div>
+            <div className="panel-head"><div><span className="eyebrow">SMART MONEY CONCEPTS</span><h2>SMC Strategy Signal · {activeMarket.symbol}</h2></div><span className="tag amber-tag">WAIT</span></div>
+            <div className="signal-direction"><div className="signal-icon"><Activity/></div><div><b>WAIT FOR CONFIRMATION</b><small>Signal generation is paused until a verified live candle feed is connected</small></div></div>
             <div className="smc-section-title">MARKET STRUCTURE</div>
             <div className="smc-metric-grid">
-              <div><span>Trend direction</span><b>{smc?.analysis?.direction||'Awaiting data'}</b></div><div><span>BOS</span><b>{smc?.analysis?.bos||'Not detected'}</b></div><div><span>CHoCH</span><b>{smc?.analysis?.choch||'Not detected'}</b></div><div><span>Liquidity</span><b>{smc?.analysis?.liquidity?.sweep||'Not evaluated'}</b></div>
+              <div><span>Trend direction</span><b>Undetermined</b></div><div><span>BOS</span><b>Not detected</b></div><div><span>CHoCH</span><b>Not detected</b></div><div><span>Liquidity</span><b>Not evaluated</b></div>
             </div>
             <div className="smc-section-title">INSTITUTIONAL ZONES</div>
             <div className="smc-metric-grid">
-              <div><span>Order Blocks</span><b>{smc?.analysis?.orderBlock||'Awaiting data'}</b></div><div><span>Fair Value Gap</span><b>{smc?.analysis?.fvg||'Awaiting data'}</b></div><div><span>Liquidity sweep</span><b>{smc?.analysis?.liquidity?.sweep||'Awaiting data'}</b></div><div><span>Displacement</span><b>{smc?.analysis?.status==='BUY'||smc?.analysis?.status==='SELL'?'Detected candidate':'Not confirmed'}</b></div>
+              <div><span>Order Blocks</span><b>Awaiting data</b></div><div><span>Fair Value Gap</span><b>Awaiting data</b></div><div><span>Liquidity sweep</span><b>Awaiting data</b></div><div><span>Displacement</span><b>Awaiting data</b></div>
             </div>
             <div className="smc-section-title">WHY THIS SIGNAL?</div>
-            <div className="signal-reason"><b>Current reason: {smc?.analysis?.status||'WAIT'}</b><p>{smc?.analysis?.reason||marketData.error||'Waiting for free candle data. No signal will be fabricated if the provider is unavailable.'}</p><small>Last update: {smc?.updatedAt?new Date(smc.updatedAt).toLocaleTimeString():'—'} · Data may be delayed and differ from TradingView/broker.</small></div>
+            <div className="signal-reason"><b>Current reason: WAIT</b><p>There is no verified broker candle feed available to confirm market structure, liquidity events or strategy confluence. The system therefore avoids inventing a bullish/bearish bias or issuing a BUY/SELL call.</p></div>
           </div>
           <div className="panel">
             <span className="eyebrow">TRADE MANAGEMENT</span><h2 className="trade-plan-title">Entry &amp; target levels</h2>
-            <div className="level-list">{[['ENTRY ZONE',smc?.analysis?.entryZone?.map(priceText).join(' – ')||'—'],['ENTRY PRICE',priceText(smc?.analysis?.entry)],['STOP LOSS',priceText(smc?.analysis?.stopLoss)],['TAKE PROFIT 1',priceText(smc?.analysis?.takeProfit?.[0])],['TAKE PROFIT 2',priceText(smc?.analysis?.takeProfit?.[1])],['TAKE PROFIT 3',priceText(smc?.analysis?.takeProfit?.[2])]].map(([a,b])=><div key={a}><span>{a}</span><b>{b}</b></div>)}</div>
-            <p className="disclaimer">Levels are indicative rule-based candidates, not broker orders. Confirm spread, tick size, contract specifications and retest manually before trading.</p>
+            <div className="level-list">{[['ENTRY ZONE','—'],['ENTRY PRICE','—'],['STOP LOSS','—'],['TAKE PROFIT 1','—'],['TAKE PROFIT 2','—'],['TAKE PROFIT 3','—']].map(([a,b])=><div key={a}><span>{a}</span><b>{b}</b></div>)}</div>
+            <p className="disclaimer">Entry and target levels will be calculated only after a valid setup is detected from real market candles. No trade levels are fabricated.</p>
           </div>
         </section>
         <section className="panel lower-panel">
           <div className="panel-head"><div><span className="eyebrow">DECISION JOURNAL</span><h2>Last 50 strategy decisions</h2></div><span className="tag">0 / 50 RECORDS</span></div>
-          <div className="history-empty"><div className="history-empty-icon"><Activity size={20}/></div><b>{smc?.connected?'Candle feed connected':'Waiting for market data'}</b><p>{smc?.candles?.length||0} candles received for {activeMarket.symbol} · refreshed every 20 seconds while this screen is open. {marketData.error||'The analysis is a transparent rule-based estimate, not AI or a guaranteed trading signal.'}</p></div>
+          <div className="history-empty"><div className="history-empty-icon"><Activity size={20}/></div><b>No strategy decisions recorded yet</b><p>Once the verified data feed and SMC calculation engine are connected, every BUY, SELL or WAIT decision will be saved with its reason, direction, entry, stop loss and TP1–TP3 levels. The journal will retain the latest 50 decisions.</p></div>
         </section>
       </>}
       {tab === 'smc-tools' && <SMCIntelligence market={activeMarket.symbol} bridge={bridge} />}
       {tab === 'risk' && <RiskManager market={activeMarket.symbol} />}
       {tab === 'journal' && <TradeJournal market={activeMarket.symbol} />}
       {tab === 'markets' && <><LivePrices /><section className="panel markets-panel"><div className="panel-head"><div><span className="eyebrow">INSTRUMENTS</span><h2>Watchlist markets</h2></div><span className="tag">SELECT TO OPEN CHART</span></div><div className="market-table"><div className="market-table-head"><span>INSTRUMENT</span><span>ASSET CLASS</span><span>PRICE SOURCE</span><span>CHART</span></div>{markets.map(m=><div className="market-table-row" key={m.symbol}><div><b>{m.symbol}</b><small>{m.name}</small></div><span>{m.type}</span><b className="positive">TradingView</b><button className="subtle-btn" onClick={()=>chooseMarket(m)}>Open chart →</button></div>)}</div><p className="disclaimer">Use the Market Prices ticker above for current provider quotes. TradingView quotes may be delayed and can differ from broker execution prices.</p></section></>}
-      {tab === 'settings' && <><section className="panel settings-panel"><div className="panel-head"><div><span className="eyebrow">WORKSPACE</span><h2>Connection settings</h2></div><span className="tag">PRIVATE</span></div><div className="settings-row"><div><b>Secure password login</b><p>Server-side authentication and HttpOnly session cookie.</p></div><span className="integration-state connected">Protected</span></div><div className="settings-row"><div><b>TradingView chart</b><p>Embedded chart widget for selected instruments.</p></div><span className="integration-state connected">Available</span></div><div className="settings-row"><div><b>TradingView market widgets</b><p>Market ticker and embedded charts provide the displayed reference prices.</p></div><span className="integration-state connected">Enabled</span></div><div className="settings-row"><div><b>MT5 / ChemlalBridge</b><p>Optional broker candle connection for automated calculations. Not used as the displayed price source.</p></div><span className="integration-state">Optional</span></div><div className="settings-row"><div><b>SMC candle data</b><p>Free public Yahoo Finance chart endpoint; polled while SMC Signals is open. May be delayed, rate-limited or unavailable for some symbols/timeframes.</p></div><span className="integration-state connected">Free endpoint</span></div><div className="settings-row"><div><b>Language</b><p>Choose English, French or Arabic from the header.</p></div><span className="integration-state connected">{language}</span></div><div className="settings-row"><div><b>Trading sessions</b><p>Asia 00–09, London 07–16, New York 13–22 UTC (indicative windows).</p></div><span className="integration-state connected">{sessions.filter(s=>s.active).map(s=>s.name).join(' + ')||'Between sessions'}</span></div></section><section className="panel lower-panel"><span className="eyebrow">SECURITY NOTE</span><h2>Keep your workspace protected</h2><p className="settings-note">Your current password and session system remain unchanged. Never place broker credentials, API secrets or private keys in browser-side code.</p></section></>}
+      {tab === 'settings' && <><section className="panel settings-panel"><div className="panel-head"><div><span className="eyebrow">WORKSPACE</span><h2>Connection settings</h2></div><span className="tag">PRIVATE</span></div><div className="settings-row"><div><b>Secure password login</b><p>Server-side authentication and HttpOnly session cookie.</p></div><span className="integration-state connected">Protected</span></div><div className="settings-row"><div><b>TradingView chart</b><p>Embedded chart widget for selected instruments.</p></div><span className="integration-state connected">Available</span></div><div className="settings-row"><div><b>TradingView market widgets</b><p>Market ticker and embedded charts provide the displayed reference prices.</p></div><span className="integration-state connected">Enabled</span></div><div className="settings-row"><div><b>MT5 / ChemlalBridge</b><p>Optional broker candle connection for automated calculations. Not used as the displayed price source.</p></div><span className="integration-state">Optional</span></div><div className="settings-row"><div><b>SMC rule engine</b><p>TradingView embedded widgets do not expose candle data to this app. Automated SMC requires a separate permitted candle feed.</p></div><span className="integration-state">Data required</span></div><div className="settings-row"><div><b>Language</b><p>Choose English, French or Arabic from the header.</p></div><span className="integration-state connected">{language}</span></div><div className="settings-row"><div><b>Trading sessions</b><p>Asia 00–09, London 07–16, New York 13–22 UTC (indicative windows).</p></div><span className="integration-state connected">{sessions.filter(s=>s.active).map(s=>s.name).join(' + ')||'Between sessions'}</span></div></section><section className="panel lower-panel"><span className="eyebrow">SECURITY NOTE</span><h2>Keep your workspace protected</h2><p className="settings-note">Your current password and session system remain unchanged. Never place broker credentials, API secrets or private keys in browser-side code.</p></section></>}
       <footer>TRADER PRO CHEMLAL <span>Trading involves risk. Informational workspace only — not financial advice.</span></footer>
     </main>
   </div>;
