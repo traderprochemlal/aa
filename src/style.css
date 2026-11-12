@@ -65,3 +65,24 @@
 .live-ticker .tradingview-widget-container{width:100%!important}
 .live-prices-panel .disclaimer{margin-top:9px}
 @media(max-width:650px){.live-prices-panel{padding:13px}.live-prices-head{align-items:flex-start}.live-feed-tag{font-size:8px}}
+
+/* CHEMLAL PRO brand, language and market-session status */
+.topbar{position:relative;min-height:58px}
+.topbar-title{min-width:0}
+.top-brand-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:9px;white-space:nowrap;font:700 15px 'Space Grotesk';letter-spacing:1.5px;color:#edf5fb}
+.top-brand-center em{font-style:normal;color:#45d4a4}
+.top-brand-mark{width:32px;height:32px;display:grid;place-items:center;border:1px solid #285c50;border-radius:9px;background:#12332f;color:#45d4a4}
+.language-select{height:34px;padding:0 9px;border:1px solid #294056;border-radius:7px;background:#102337;color:#d9e6f1;font:700 10px 'DM Sans';outline:none}
+.market-session-strip{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:-9px 0 18px;padding:11px 14px;border:1px solid #1c3045;border-radius:9px;background:#0a1725}
+.bridge-live-state,.session-items,.session-items>span{display:flex;align-items:center;gap:9px}
+.bridge-live-state{font-size:10px;color:#9aacc0;letter-spacing:.7px}
+.bridge-live-state>i,.session-items i{width:7px;height:7px;border-radius:50%;background:#657386;display:inline-block}
+.bridge-live-state>i.is-live{background:#35d6a0;box-shadow:0 0 0 4px rgba(53,214,160,.12)}
+.bridge-live-state b{color:#45d4a4;font-size:10px;letter-spacing:0}
+.session-items{gap:8px;flex-wrap:wrap}
+.session-items>span{padding:6px 9px;border:1px solid #26384a;border-radius:6px;color:#687d93;font-size:8px;font-weight:700;letter-spacing:.8px}
+.session-items>span.session-active{color:#45d4a4;background:#10342d;border-color:#24614e}
+.session-items>span.session-active i{background:#35d6a0;box-shadow:0 0 0 3px rgba(53,214,160,.1)}
+.integration-state:not(.connected){color:#8290a0}
+@media(max-width:850px){.top-brand-center{position:static;transform:none;margin:0 auto 0 0}.topbar{flex-wrap:wrap}.topbar-title{flex:1 1 100%}.top-actions{margin-left:auto}.market-session-strip{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.top-brand-center{font-size:12px}.status{display:none}.session-items{gap:5px}.session-items>span{padding:5px 7px}.bridge-live-state{flex-wrap:wrap}.topbar{gap:10px}}
