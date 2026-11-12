@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Activity, CandlestickChart, ShieldCheck, Bell, Settings, Target, Waves, LockKeyhole, Eye, EyeOff, LogOut, LoaderCircle } from 'lucide-react';
+import { Activity, CandlestickChart, ShieldCheck, Bell, Settings, Target, Waves, LockKeyhole, Eye, EyeOff, LogOut, LoaderCircle, Calculator, BookOpen, Radar } from 'lucide-react';
+import { RiskManager, TradeJournal, SMCIntelligence } from './AdvancedTools.jsx';
 import './style.css';
 
 function LoginScreen({ onLogin }) {
@@ -72,7 +73,7 @@ function App() {
   const chooseMarket = (m) => { setSelectedMarket(m.symbol); setSymbol(m.tv); setTab('overview'); };
   if (auth === 'checking') return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin" size={25}/><span>SECURING YOUR WORKSPACE</span></div></main>;
   if (auth !== 'authenticated') return <LoginScreen onLogin={() => setAuth('authenticated')} />;
-  const nav = [['overview','Overview',Activity],['signals','SMC Signals',Target],['markets','Markets',Waves],['settings','Settings',Settings]];
+  const nav = [['overview','Overview',Activity],['signals','SMC Signals',Target],['smc-tools','SMC Intelligence',Radar],['risk','Risk Manager',Calculator],['journal','Trade Journal',BookOpen],['markets','Markets',Waves],['settings','Settings',Settings]];
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><div className="logo-mark"><CandlestickChart/></div><div><b>TRADER PRO</b><span>CHEMLAL FX</span></div></div>
@@ -129,6 +130,9 @@ function App() {
           <div className="history-empty"><div className="history-empty-icon"><Activity size={20}/></div><b>No strategy decisions recorded yet</b><p>Once the verified data feed and SMC calculation engine are connected, every BUY, SELL or WAIT decision will be saved with its reason, direction, entry, stop loss and TP1–TP3 levels. The journal will retain the latest 50 decisions.</p></div>
         </section>
       </>}
+      {tab === 'smc-tools' && <SMCIntelligence market={activeMarket.symbol} />}
+      {tab === 'risk' && <RiskManager market={activeMarket.symbol} />}
+      {tab === 'journal' && <TradeJournal market={activeMarket.symbol} />}
       {tab === 'markets' && <section className="panel markets-panel"><div className="panel-head"><div><span className="eyebrow">INSTRUMENTS</span><h2>Watchlist markets</h2></div><span className="tag">SELECT TO OPEN CHART</span></div><div className="market-table"><div className="market-table-head"><span>INSTRUMENT</span><span>ASSET CLASS</span><span>INDICATIVE CHANGE</span><span>CHART</span></div>{markets.map(m=><div className="market-table-row" key={m.symbol}><div><b>{m.symbol}</b><small>{m.name}</small></div><span>{m.type}</span><b className={m.tone}>{m.change}</b><button className="subtle-btn" onClick={()=>chooseMarket(m)}>Open chart →</button></div>)}</div><p className="disclaimer">Market change figures are illustrative placeholders, not live prices. Live data integration is a separate next step.</p></section>}
       {tab === 'settings' && <><section className="panel settings-panel"><div className="panel-head"><div><span className="eyebrow">WORKSPACE</span><h2>Connection settings</h2></div><span className="tag">PRIVATE</span></div><div className="settings-row"><div><b>Secure password login</b><p>Server-side authentication and HttpOnly session cookie.</p></div><span className="integration-state connected">Protected</span></div><div className="settings-row"><div><b>TradingView chart</b><p>Embedded chart widget for selected instruments.</p></div><span className="integration-state connected">Available</span></div><div className="settings-row"><div><b>MT5 / ChemlalBridge</b><p>Authenticated Expert Advisor relay for broker quotes.</p></div><span className="integration-state">Not connected</span></div><div className="settings-row"><div><b>Live market data</b><p>Verified Bid/Ask and candle feed from your broker.</p></div><span className="integration-state">Not connected</span></div><div className="settings-row"><div><b>AI / SMC analysis</b><p>Server-side calculations using verified candle data.</p></div><span className="integration-state">Not configured</span></div></section><section className="panel lower-panel"><span className="eyebrow">SECURITY NOTE</span><h2>Keep your workspace protected</h2><p className="settings-note">Your current password and session system remain unchanged. Never place broker credentials, API secrets or private keys in browser-side code.</p></section></>}
       <footer>TRADER PRO CHEMLAL <span>Trading involves risk. Informational workspace only — not financial advice.</span></footer>
