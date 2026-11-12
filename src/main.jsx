@@ -107,6 +107,12 @@ function App() {
         <section className="panel lower-panel"><div className="panel-head"><div><span className="eyebrow">SMART MONEY CONCEPTS</span><h2>Strategy workspace</h2></div><button className="subtle-btn" onClick={()=>setTab('signals')}>Open SMC analysis <span>→</span></button></div><div className="feature-grid"><div><span className="feature-icon"><Activity/></span><b>Market Structure</b><p>BOS and CHoCH tracking framework.</p></div><div><span className="feature-icon"><Waves/></span><b>Liquidity Map</b><p>Equal highs/lows and liquidity sweep zones.</p></div><div><span className="feature-icon"><Target/></span><b>Trade Planning</b><p>Entry, invalidation and multi-target layout.</p></div></div></section>
       </>}
       {tab === 'signals' && <>
+        <LivePrices symbol={activeMarket.tv} />
+        <section className="panel chart-panel smc-live-chart-panel">
+          <div className="panel-head"><div><span className="eyebrow">LIVE TRADINGVIEW MARKET</span><h2>{activeMarket.name} · {activeMarket.symbol}</h2></div><div className="timeframes">{[['1','1m'],['5','5m'],['15','15m'],['60','1h'],['240','4h'],['D','1D']].map(([v,l])=><button className={timeframe===v?'selected':''} onClick={()=>setTimeframe(v)} key={v}>{l}</button>)}</div></div>
+          <div className="chart-wrap"><iframe title="TradingView SMC signal market chart" src={`https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(activeMarket.tv)}&interval=${timeframe}&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=%230b1728&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1`} /></div>
+          <div className="chart-foot"><span><i/> TradingView chart · {activeMarket.tv}</span><span>Reference prices; broker execution may differ</span></div>
+        </section>
         <section className="smc-summary-grid">
           <div className="smc-summary-card"><span>MARKET DIRECTION</span><div className="direction-options"><b className="bullish">BULLISH</b><b className="bearish">BEARISH</b></div><small>Awaiting verified candle data</small></div>
           <div className="smc-summary-card"><span>TRADE DECISION</span><strong className="wait-text">WAIT</strong><small>No confirmed BUY / SELL setup</small></div>
